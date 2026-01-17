@@ -22,6 +22,7 @@ import {
 import type { DataTableProps } from './types';
 import { TEXT_SELECTION_DISABLED } from './utilityClasses';
 import { differenceBy, flattenColumns, getRecordId, uniqBy } from './utils';
+import { useRowGroup } from '~/package/hooks/useRowGroup';
 
 export function DataTable<T>({
   withTableBorder,
@@ -131,6 +132,7 @@ export function DataTable<T>({
   styles,
   rowFactory,
   tableWrapper,
+  groupColumn,
   ...otherProps
 }: DataTableProps<T>) {
   const effectiveColumns = useMemo(() => {
@@ -250,6 +252,12 @@ export function DataTable<T>({
     [tableWrapper]
   );
 
+  const { hasGrouping, mappedRecords, collapsedGroups, toggleGroup } = useRowGroup({
+    columns: effectiveColumns,
+    records,
+    groupColumn,
+  });
+
   return (
     <DataTableColumnsProvider {...dragToggle}>
       <Box
@@ -339,20 +347,40 @@ export function DataTable<T>({
                     selectionColumnClassName={selectionColumnClassName}
                     selectionColumnStyle={selectionColumnStyle}
                     withColumnBorders={otherProps.withColumnBorders}
+                    groupColumn={hasGrouping ? groupColumn : undefined}
                   />
                 </DataTableColumnsProvider>
               )}
               <tbody ref={bodyRef}>
                 {recordsLength ? (
-                  records.map((record, index) => {
-                    const recordId = getRecordId(record, idAccessor);
-                    const isSelected = selectedRecordIds?.includes(recordId) || false;
+                  mappedRecords?.map((r, index) => {
+                    const isGroupRow = r.type === 'group';
+                    const record = r.data;
+                    const recordId = r.type === 'group' ? r.key : getRecordId(record as T, idAccessor);
+                    const allRecords = r.type === 'group' ? r.allRecords : [r.data];
+                    const isSelectedFn = (r: T) => selectedRecordIds?.includes(getRecordId(r, idAccessor)) || false;
+                    const isSelected = allRecords.every(isSelectedFn);
+                    const isSelectedIndeterminate = !isSelected && allRecords.some(isSelectedFn);
 
                     let handleSelectionChange: React.MouseEventHandler | undefined;
 
                     if (onSelectedRecordsChange && selectedRecords) {
                       handleSelectionChange = (e) => {
-                        if (e.nativeEvent.shiftKey && lastSelectionChangeIndex !== null) {
+                        if (isGroupRow) {
+                          // Group selection: select all records if not selected or indeterminate, deselect if selected
+                          const groupRecords = allRecords as T[];
+                          const selectableGroupRecords = isRecordSelectable
+                            ? groupRecords.filter((rec, idx) => isRecordSelectable(rec, idx))
+                            : groupRecords;
+
+                          onSelectedRecordsChange(
+                            isSelected
+                              ? differenceBy(selectedRecords, selectableGroupRecords, (r) => getRecordId(r, idAccessor))
+                              : uniqBy([...selectedRecords, ...selectableGroupRecords], (r) =>
+                                  getRecordId(r, idAccessor)
+                                )
+                          );
+                        } else if (e.nativeEvent.shiftKey && lastSelectionChangeIndex !== null) {
                           const targetRecords = records.filter(
                             index > lastSelectionChangeIndex
                               ? (rec, idx) =>
@@ -373,7 +401,7 @@ export function DataTable<T>({
                           onSelectedRecordsChange(
                             isSelected
                               ? selectedRecords.filter((rec) => getRecordId(rec, idAccessor) !== recordId)
-                              : uniqBy([...selectedRecords, record], (rec) => getRecordId(rec, idAccessor))
+                              : uniqBy([...selectedRecords, record as T], (rec) => getRecordId(rec, idAccessor))
                           );
                         }
                         setLastSelectionChangeIndex(index);
@@ -383,7 +411,7 @@ export function DataTable<T>({
                     return (
                       <DataTableRow<T>
                         key={recordId as React.Key}
-                        record={record}
+                        record={record as T}
                         index={index}
                         columns={effectiveColumns}
                         defaultColumnProps={defaultColumnProps}
@@ -391,6 +419,7 @@ export function DataTable<T>({
                         selectionTrigger={selectionTrigger}
                         selectionVisible={selectionColumnVisible}
                         selectionChecked={isSelected}
+                        selectionIndeterminate={isSelectedIndeterminate}
                         onSelectionChange={handleSelectionChange}
                         isRecordSelectable={isRecordSelectable}
                         selectionCheckboxProps={selectionCheckboxProps}
@@ -412,6 +441,10 @@ export function DataTable<T>({
                         selectionColumnStyle={selectionColumnStyle}
                         idAccessor={idAccessor as string}
                         rowFactory={rowFactory}
+                        groupColumn={hasGrouping ? groupColumn : undefined}
+                        toggleGroupColumn={toggleGroup}
+                        isGroupColumnCollapsed={r?.type === 'group' && collapsedGroups.includes(r.key)}
+                        typedRecord={r}
                       />
                     );
                   })
@@ -429,6 +462,7 @@ export function DataTable<T>({
                   defaultColumnProps={defaultColumnProps}
                   selectionVisible={selectionColumnVisible}
                   selectorCellShadowVisible={selectorCellShadowVisible}
+                  groupColumn={hasGrouping ? groupColumn : undefined}
                 />
               )}
             </Table>

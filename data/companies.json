@@ -5,6 +5,7 @@
     "streetAddress": "21716 Ratke Drive",
     "city": "Stromanport",
     "state": "WY",
+    "revenue": 1250000,
     "missionStatement": "Innovate bricks-and-clicks metrics."
   },
   {
@@ -13,6 +14,7 @@
     "streetAddress": "6389 Dicki Stream",
     "city": "South Gate",
     "state": "NH",
+    "revenue": 890000,
     "missionStatement": "Harness real-time channels."
   },
   {
@@ -21,6 +23,7 @@
     "streetAddress": "8873 Mertz Rapid",
     "city": "Dorthyside",
     "state": "ID",
+    "revenue": 2340000,
     "missionStatement": "Productize front-end web services."
   },
   {
@@ -29,6 +32,7 @@
     "streetAddress": "2996 Ronny Mount",
     "city": "McAllen",
     "state": "MA",
+    "revenue": 1780000,
     "missionStatement": "Engage synergistic infrastructures."
   },
   {
@@ -37,6 +41,7 @@
     "streetAddress": "632 Broadway Avenue",
     "city": "North Louie",
     "state": "WY",
+    "revenue": 950000,
     "missionStatement": "Incubate cross-platform metrics."
   },
   {
@@ -45,6 +50,7 @@
     "streetAddress": "576 Joyce Ways",
     "city": "Tyraburgh",
     "state": "KS",
+    "revenue": 3120000,
     "missionStatement": "Scale web-enabled e-business."
   },
   {
@@ -53,6 +59,7 @@
     "streetAddress": "7508 Lansdowne Road",
     "city": "Shieldsborough",
     "state": "MI",
+    "revenue": 1560000,
     "missionStatement": "Innovate real-time applications."
   },
   {
@@ -61,6 +68,7 @@
     "streetAddress": "57918 Gwendolyn Circles",
     "city": "Sheridanport",
     "state": "MI",
+    "revenue": 2890000,
     "missionStatement": "Matrix viral synergies."
   },
   {
@@ -69,6 +77,7 @@
     "streetAddress": "7057 Stanley Road",
     "city": "Kearaburgh",
     "state": "CA",
+    "revenue": 4250000,
     "missionStatement": "Maximize dynamic e-commerce."
   },
   {
@@ -77,6 +86,7 @@
     "streetAddress": "378 Berta Crescent",
     "city": "West Gerry",
     "state": "KS",
+    "revenue": 1920000,
     "missionStatement": "Synthesize customized portals."
   },
   {
@@ -85,6 +95,7 @@
     "streetAddress": "8346 Kertzmann Square",
     "city": "South Joesph",
     "state": "ID",
+    "revenue": 1670000,
     "missionStatement": "Reinvent cross-platform channels."
   },
   {
@@ -93,6 +104,7 @@
     "streetAddress": "83462 Shazam Street",
     "city": "North Joesph",
     "state": "ID",
+    "revenue": 780000,
     "missionStatement": "Eliminate best-of-breed e-markets."
   },
   {
@@ -101,6 +113,7 @@
     "streetAddress": "83462 Shazam Street",
     "city": "North Joesph",
     "state": "ID",
+    "revenue": 820000,
     "missionStatement": "Eliminate best-of-breed e-markets."
   }
 ]
