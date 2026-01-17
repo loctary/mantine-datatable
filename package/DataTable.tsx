@@ -22,7 +22,7 @@ import {
 import type { DataTableProps } from './types';
 import { TEXT_SELECTION_DISABLED } from './utilityClasses';
 import { differenceBy, flattenColumns, getRecordId, uniqBy } from './utils';
-import { useRowGroup } from '~/package/hooks/useRowGroup';
+import { useRowGroup } from './hooks/useRowGroup';
 
 export function DataTable<T>({
   withTableBorder,

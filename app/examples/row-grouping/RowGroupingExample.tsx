@@ -21,7 +21,7 @@ export function RowGroupingExample() {
           width: 100,
           rowGroup: true,
           hidden: true,
-          footer: true,
+
         },
         { accessor: 'city', width: 150, rowGroup: true, hidden: true },
         { accessor: 'name', width: 200 },

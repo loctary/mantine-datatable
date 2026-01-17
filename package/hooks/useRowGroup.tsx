@@ -21,7 +21,14 @@ export function useRowGroup<T>({ columns = [], groupColumn, records }: UseRowGro
   }, [hasGrouping, records, groupingColumns]);
 
   const mappedRecords = useMemo(() => {
-    if (!hasGrouping) return flattenGroupMapWithAggregation(records, columns, collapsedGroups);
+    if (!hasGrouping) {
+      if (!records) return undefined;
+      return records.map((record) => ({
+        type: 'record' as const,
+        data: record,
+        level: 0,
+      }));
+    }
     return flattenGroupMapWithAggregation(groupedRecords, columns, collapsedGroups);
   }, [hasGrouping, records, groupedRecords, columns, collapsedGroups]);
 
@@ -133,7 +140,8 @@ function flattenGroupMapWithAggregation<T>(
 
     const isCollapsed = collapsedGroups.includes(groupKey);
     if (!isCollapsed) {
-      result.push(...flattenGroupMapWithAggregation(value, columns, collapsedGroups, level + 1, groupKey)!);
+      const nested = flattenGroupMapWithAggregation(value, columns, collapsedGroups, level + 1, groupKey) ?? [];
+      result.push(...nested);
     }
   });
 
