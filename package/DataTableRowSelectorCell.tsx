@@ -12,6 +12,7 @@ type DataTableRowSelectorCellProps<T> = {
   trigger: DataTableSelectionTrigger;
   withRightShadow: boolean;
   checked: boolean;
+  indeterminate: boolean;
   disabled: boolean;
   onChange: React.MouseEventHandler | undefined;
   checkboxProps: CheckboxProps | undefined;

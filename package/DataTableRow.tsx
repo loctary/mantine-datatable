@@ -1,5 +1,5 @@
-import type { MantineTheme } from '@mantine/core';
-import { TableTr, type CheckboxProps, type MantineColor, type MantineStyleProp } from '@mantine/core';
+import type { CheckboxProps, MantineColor, MantineStyleProp, MantineTheme } from '@mantine/core';
+import { TableTr } from '@mantine/core';
 import clsx from 'clsx';
 import { DataTableRowCell } from './DataTableRowCell';
 import { DataTableRowExpansion } from './DataTableRowExpansion';
@@ -9,10 +9,12 @@ import type { useRowExpansion } from './hooks';
 import type {
   DataTableCellClickHandler,
   DataTableColumn,
+  DataTableGroupColumn,
   DataTableDefaultColumnProps,
   DataTableProps,
   DataTableRowClickHandler,
   DataTableSelectionTrigger,
+  TypedRecord,
 } from './types';
 import { CONTEXT_MENU_CURSOR, POINTER_CURSOR } from './utilityClasses';
 
@@ -27,6 +29,7 @@ type DataTableRowProps<T> = {
   selectionTrigger: DataTableSelectionTrigger;
   selectionVisible: boolean;
   selectionChecked: boolean;
+  selectionIndeterminate: boolean;
   onSelectionChange: React.MouseEventHandler | undefined;
   isRecordSelectable: ((record: T, index: number) => boolean) | undefined;
   selectionCheckboxProps: CheckboxProps | undefined;
@@ -51,6 +54,10 @@ type DataTableRowProps<T> = {
   selectionColumnClassName: string | undefined;
   selectionColumnStyle: MantineStyleProp | undefined;
   idAccessor: string;
+  groupColumn?: DataTableGroupColumn<T>;
+  toggleGroupColumn?: (r?: TypedRecord<T>) => void;
+  isGroupColumnCollapsed?: boolean;
+  typedRecord?: TypedRecord<T>;
 } & Pick<DataTableProps<T>, 'rowFactory'>;
 
 export function DataTableRow<T>({
@@ -62,6 +69,7 @@ export function DataTableRow<T>({
   selectionTrigger,
   selectionVisible,
   selectionChecked,
+  selectionIndeterminate,
   onSelectionChange,
   isRecordSelectable,
   selectionCheckboxProps,
@@ -82,6 +90,10 @@ export function DataTableRow<T>({
   selectionColumnClassName,
   selectionColumnStyle,
   rowFactory,
+  groupColumn,
+  toggleGroupColumn,
+  isGroupColumnCollapsed,
+  typedRecord,
 }: Readonly<DataTableRowProps<T>>) {
   const cols = (
     <>
@@ -89,19 +101,51 @@ export function DataTableRow<T>({
         <DataTableRowSelectorCell<T>
           className={selectionColumnClassName}
           style={selectionColumnStyle}
-          record={record}
+          record={record as T}
           index={index}
           trigger={selectionTrigger}
           withRightShadow={selectorCellShadowVisible}
           checked={selectionChecked}
-          disabled={!onSelectionChange || (isRecordSelectable ? !isRecordSelectable(record, index) : false)}
+          indeterminate={selectionIndeterminate}
+          disabled={!onSelectionChange || (isRecordSelectable ? !isRecordSelectable(record as T, index) : false)}
           onChange={onSelectionChange}
           checkboxProps={selectionCheckboxProps}
           getCheckboxProps={getSelectionCheckboxProps}
         />
       )}
 
-      {columns.map(({ hidden, hiddenContent, ...columnProps }, columnIndex) => {
+      {!!groupColumn && (
+        <DataTableRowCell<T>
+          key="group-column"
+          className={
+            typeof groupColumn?.cellsClassName === 'function'
+              ? groupColumn.cellsClassName(record, index)
+              : groupColumn?.cellsClassName
+          }
+          style={groupColumn?.cellsStyle?.(record, index)}
+          visibleMediaQuery={groupColumn?.visibleMediaQuery}
+          record={record as T}
+          index={index}
+          onClick={undefined}
+          onDoubleClick={undefined}
+          onContextMenu={undefined}
+          accessor={groupColumn?.accessor || ''}
+          textAlign={groupColumn?.textAlign}
+          noWrap={groupColumn?.noWrap}
+          ellipsis={groupColumn?.ellipsis}
+          width={groupColumn?.width}
+          render={groupColumn?.render}
+          defaultRender={defaultColumnRender}
+          customCellAttributes={groupColumn?.customCellAttributes}
+          toggleGroupColumn={toggleGroupColumn}
+          isGroupColumnCollapsed={isGroupColumnCollapsed}
+          typedRecord={typedRecord}
+          groupColumn={groupColumn}
+        />
+      )}
+
+      {columns.map((column, columnIndex) => {
+        const { hidden, hiddenContent, ...columnProps } = column;
         if (hidden || hiddenContent) return null;
 
         const {
@@ -148,6 +192,7 @@ export function DataTableRow<T>({
             render={render}
             defaultRender={defaultColumnRender}
             customCellAttributes={customCellAttributes}
+            typedRecord={typedRecord}
           />
         );
       })}
@@ -156,7 +201,7 @@ export function DataTableRow<T>({
 
   const expandedElement = expansion && (
     <DataTableRowExpansion
-      colSpan={columns.filter(({ hidden }) => !hidden).length + (selectionVisible ? 1 : 0)}
+      colSpan={columns.filter(({ hidden }) => !hidden).length + (selectionVisible ? 1 : 0) + (groupColumn ? 1 : 0)}
       open={expansion.isRowExpanded(record)}
       content={expansion.content({ record, index })}
       collapseProps={expansion.collapseProps}
