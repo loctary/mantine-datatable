@@ -1,4 +1,4 @@
-import type { DataTableColumn } from './DataTableColumn';
+import type { DataTableColumn, DataTableGroupColumn } from './DataTableColumn';
 import type { DataTableColumnGroup } from './DataTableColumnGroup';
 
 export type DataTableColumnProps<T = Record<string, unknown>> =
@@ -9,6 +9,7 @@ export type DataTableColumnProps<T = Record<string, unknown>> =
       groups: DataTableColumnGroup<T>[];
 
       columns?: never;
+      groupColumn?: never;
     }
   | {
       groups?: never;
@@ -17,4 +18,5 @@ export type DataTableColumnProps<T = Record<string, unknown>> =
        * Visible columns.
        */
       columns: DataTableColumn<T>[];
+      groupColumn?: DataTableGroupColumn<T>;
     };

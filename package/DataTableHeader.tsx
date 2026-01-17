@@ -17,7 +17,13 @@ import { useDataTableColumnsContext } from './DataTableColumns.context';
 import { DataTableHeaderCell } from './DataTableHeaderCell';
 import { DataTableHeaderSelectorCell } from './DataTableHeaderSelectorCell';
 import type { DataTableColumnToggle } from './hooks';
-import type { DataTableColumn, DataTableColumnGroup, DataTableSelectionTrigger, DataTableSortProps } from './types';
+import type {
+  DataTableColumn,
+  DataTableGroupColumn,
+  DataTableColumnGroup,
+  DataTableSelectionTrigger,
+  DataTableSortProps,
+} from './types';
 import { getGroupsAtDepth, getMaxGroupDepth, humanize } from './utils';
 
 type DataTableHeaderProps<T> = {
@@ -41,6 +47,7 @@ type DataTableHeaderProps<T> = {
   selectionColumnStyle: MantineStyleProp;
   withColumnBorders?: boolean;
   ref: React.Ref<HTMLTableSectionElement>;
+  groupColumn?: DataTableGroupColumn<T>;
 };
 
 export function DataTableHeader<T>({
@@ -64,6 +71,7 @@ export function DataTableHeader<T>({
   selectionColumnStyle,
   withColumnBorders = false,
   ref,
+  groupColumn,
 }: DataTableHeaderProps<T>) {
   const maxGroupDepth = groups ? getMaxGroupDepth(groups) : 0;
   const totalHeaderRows = maxGroupDepth > 0 ? maxGroupDepth + 1 : 1;
@@ -132,6 +140,31 @@ export function DataTableHeader<T>({
 
       <TableTr>
         {!groups && allRecordsSelectorCell}
+
+        {groupColumn && (
+          <DataTableHeaderCell<T>
+            key="group-column"
+            accessor={groupColumn.accessor || ''}
+            className={groupColumn.titleClassName}
+            style={groupColumn.titleStyle}
+            visibleMediaQuery={groupColumn.visibleMediaQuery}
+            textAlign={groupColumn.textAlign}
+            width={groupColumn.width}
+            title={groupColumn.title}
+            sortable={groupColumn.sortable}
+            draggable={groupColumn.draggable}
+            toggleable={groupColumn.toggleable}
+            resizable={false}
+            sortStatus={sortStatus}
+            sortIcons={sortIcons}
+            sortKey={groupColumn.sortKey}
+            onSortStatusChange={onSortStatusChange}
+            filter={groupColumn.filter}
+            filterPopoverProps={groupColumn.filterPopoverProps}
+            filterPopoverDisableClickOutside={groupColumn.filterPopoverDisableClickOutside}
+            filtering={groupColumn.filtering}
+          />
+        )}
 
         {columns.map(({ hidden, ...columnProps }, index) => {
           if (hidden) return null;

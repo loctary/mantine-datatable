@@ -2,7 +2,7 @@ import { TableTfoot, TableTr, type MantineStyleProp } from '@mantine/core';
 import clsx from 'clsx';
 import { DataTableFooterCell } from './DataTableFooterCell';
 import { DataTableFooterSelectorPlaceholderCell } from './DataTableFooterSelectorPlaceholderCell';
-import type { DataTableColumn, DataTableDefaultColumnProps } from './types';
+import type { DataTableColumn, DataTableDefaultColumnProps, DataTableGroupColumn } from './types';
 
 type DataTableFooterProps<T> = {
   className: string | undefined;
@@ -12,6 +12,7 @@ type DataTableFooterProps<T> = {
   selectionVisible: boolean;
   selectorCellShadowVisible: boolean;
   ref: React.Ref<HTMLTableSectionElement>;
+  groupColumn?: DataTableGroupColumn<T>;
 };
 
 export function DataTableFooter<T>({
@@ -22,11 +23,33 @@ export function DataTableFooter<T>({
   selectionVisible,
   selectorCellShadowVisible,
   ref,
+  groupColumn,
 }: DataTableFooterProps<T>) {
   return (
     <TableTfoot ref={ref} className={clsx('mantine-datatable-footer', className)} style={style}>
       <TableTr>
         {selectionVisible && <DataTableFooterSelectorPlaceholderCell shadowVisible={selectorCellShadowVisible} />}
+        {groupColumn &&
+          (() => {
+            const { visibleMediaQuery, textAlign, width, footer, footerClassName, footerStyle, noWrap, ellipsis } = {
+              ...defaultColumnProps,
+              ...groupColumn,
+            };
+
+            return (
+              <DataTableFooterCell<T>
+                className={footerClassName}
+                style={footerStyle}
+                visibleMediaQuery={visibleMediaQuery}
+                textAlign={textAlign}
+                width={width}
+                title={footer}
+                noWrap={noWrap}
+                ellipsis={ellipsis}
+              />
+            );
+          })()}
+
         {columns.map(({ hidden, ...columnProps }) => {
           if (hidden) return null;
 

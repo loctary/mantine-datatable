@@ -1,7 +1,8 @@
-import { TableTd, type MantineStyleProp } from '@mantine/core';
+import { TableTd, type MantineStyleProp, ActionIcon, Flex } from '@mantine/core';
+import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 import clsx from 'clsx';
 import { useMediaQueryStringOrFunction } from './hooks';
-import type { DataTableColumn } from './types';
+import type { DataTableColumn, DataTableGroupColumn, TypedRecord } from './types';
 import {
   CONTEXT_MENU_CURSOR,
   ELLIPSIS,
@@ -24,6 +25,10 @@ type DataTableRowCellProps<T> = {
   onClick: React.MouseEventHandler<HTMLTableCellElement> | undefined;
   onDoubleClick: React.MouseEventHandler<HTMLTableCellElement> | undefined;
   onContextMenu: React.MouseEventHandler<HTMLTableCellElement> | undefined;
+  groupColumn?: DataTableGroupColumn<T>;
+  toggleGroupColumn?: (r?: TypedRecord<T>) => void;
+  isGroupColumnCollapsed?: boolean;
+  typedRecord?: TypedRecord<T>;
 } & Pick<
   DataTableColumn<T>,
   'accessor' | 'visibleMediaQuery' | 'textAlign' | 'width' | 'noWrap' | 'ellipsis' | 'render' | 'customCellAttributes'
@@ -46,8 +51,14 @@ export function DataTableRowCell<T>({
   render,
   defaultRender,
   customCellAttributes,
+  toggleGroupColumn,
+  isGroupColumnCollapsed,
+  typedRecord,
+  groupColumn,
 }: DataTableRowCellProps<T>) {
   if (!useMediaQueryStringOrFunction(visibleMediaQuery)) return null;
+  const groupColumnPaddingStart =
+    (typedRecord?.level ?? 1) * 20 + 10 + (typedRecord?.type === 'record' && typedRecord.level > 1 ? 22 : 0);
   return (
     <TableTd
       className={clsx(
@@ -62,11 +73,13 @@ export function DataTableRowCell<T>({
         },
         className
       )}
+      data-level={typedRecord?.level ?? 1}
       style={[
         {
           width,
           minWidth: width,
           maxWidth: width,
+          ...(groupColumn && { paddingInlineStart: groupColumnPaddingStart }),
         },
         style,
       ]}
@@ -75,11 +88,28 @@ export function DataTableRowCell<T>({
       onContextMenu={onContextMenu}
       {...customCellAttributes?.(record, index)}
     >
-      {render
-        ? render(record, index)
-        : defaultRender
-          ? defaultRender(record, index, accessor)
-          : (getValueAtPath(record, accessor) as React.ReactNode)}
+      <Flex gap="xs" align="center" w="100%" h="100%">
+        {!!groupColumn && typedRecord?.type === 'group' && (
+          <ActionIcon
+            size="sm"
+            variant="subtle"
+            onClick={() => toggleGroupColumn?.(typedRecord)}
+            aria-label={isGroupColumnCollapsed ? 'Expand group' : 'Collapse group'}
+          >
+            {isGroupColumnCollapsed ? <IconChevronRight size={16} /> : <IconChevronDown size={16} />}
+          </ActionIcon>
+        )}
+        {!!groupColumn &&
+          typedRecord?.type === 'group' &&
+          (groupColumn?.rowGroupRender?.(typedRecord.value, typedRecord.allRecords) ??
+            `${typedRecord.value} (${typedRecord.recordCount})`)}
+        {(typedRecord?.type === 'record' || (typedRecord?.type === 'group' && !groupColumn)) &&
+          (render
+            ? render(record, index)
+            : defaultRender
+              ? defaultRender(record, index, accessor)
+              : (getValueAtPath(record, accessor) as React.ReactNode))}
+      </Flex>
     </TableTd>
   );
 }
