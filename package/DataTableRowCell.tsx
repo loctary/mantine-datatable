@@ -57,8 +57,6 @@ export function DataTableRowCell<T>({
   groupColumn,
 }: DataTableRowCellProps<T>) {
   if (!useMediaQueryStringOrFunction(visibleMediaQuery)) return null;
-  const groupColumnPaddingStart =
-    (typedRecord?.level ?? 1) * 20 + 10 + (typedRecord?.type === 'record' && typedRecord.level > 1 ? 22 : 0);
   return (
     <TableTd
       className={clsx(
@@ -79,8 +77,27 @@ export function DataTableRowCell<T>({
           width,
           minWidth: width,
           maxWidth: width,
-          ...(groupColumn && { paddingInlineStart: groupColumnPaddingStart }),
         },
+        groupColumn
+          ? (theme) => {
+              const level = typedRecord?.level ?? 1;
+              const spacingXs = theme.spacing.xs;
+              const levelIndent = `calc(${spacingXs} * 2)`;
+              const basePadding = spacingXs;
+              const iconOffset = 22; // ActionIcon size sm offset
+              
+              // Calculate total padding: (level * levelIndent) + basePadding + iconOffset
+              let paddingValue = `calc((${level} * ${levelIndent}) + ${basePadding}`;
+              if (typedRecord?.type === 'record' && typedRecord.level > 1) {
+                paddingValue += ` + ${iconOffset}px`;
+              }
+              paddingValue += ')';
+              
+              return {
+                paddingInlineStart: paddingValue,
+              };
+            }
+          : undefined,
         style,
       ]}
       onClick={onClick}
