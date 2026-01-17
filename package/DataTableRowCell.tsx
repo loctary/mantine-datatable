@@ -82,16 +82,13 @@ export function DataTableRowCell<T>({
           ? (theme) => {
               const level = typedRecord?.level ?? 1;
               const spacingXs = theme.spacing.xs;
-              const levelIndent = `calc(${spacingXs} * 2)`;
-              const basePadding = spacingXs;
               const iconOffset = 22; // ActionIcon size sm offset
               
-              // Calculate total padding: (level * levelIndent) + basePadding + iconOffset
-              let paddingValue = `calc((${level} * ${levelIndent}) + ${basePadding}`;
-              if (typedRecord?.type === 'record' && typedRecord.level > 1) {
-                paddingValue += ` + ${iconOffset}px`;
-              }
-              paddingValue += ')';
+              // Calculate total padding: (level * spacingXs * 2) + spacingXs + iconOffset (if record at level > 1)
+              const paddingValue =
+                typedRecord?.type === 'record' && typedRecord.level > 1
+                  ? `calc(${level} * ${spacingXs} * 2 + ${spacingXs} + ${iconOffset}px)`
+                  : `calc(${level} * ${spacingXs} * 2 + ${spacingXs})`;
               
               return {
                 paddingInlineStart: paddingValue,
