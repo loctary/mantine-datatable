@@ -81,10 +81,11 @@ export function DataTableRowCell<T>({
         groupColumn
           ? (theme) => {
               const level = typedRecord?.level ?? 1;
-              const spacingXs = theme.spacing.xs;
-              const iconOffset = 22; // ActionIcon size sm offset
+              const spacingXs = theme.spacing.xs; // Mantine spacing value (e.g., "var(--mantine-spacing-xs)" or "10px")
+              const iconOffset = 22; // ActionIcon size sm offset in pixels
               
-              // Calculate total padding: (level * spacingXs * 2) + spacingXs + iconOffset (if record at level > 1)
+              // Calculate total padding using CSS calc():
+              // (level * spacingXs * 2) + spacingXs + iconOffset (for records at level > 1)
               const paddingValue =
                 typedRecord?.type === 'record' && typedRecord.level > 1
                   ? `calc(${level} * ${spacingXs} * 2 + ${spacingXs} + ${iconOffset}px)`
