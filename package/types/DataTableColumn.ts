@@ -1,5 +1,8 @@
 import type { MantineStyleProp, MantineTheme, PopoverProps } from '@mantine/core';
-import type { DataTableColumnTextAlign, GroupedRecord } from '~/package';
+import type { DataTableColumnTextAlign } from './DataTableColumnTextAlign';
+import type { GroupedRecord } from './DataTableRowGroupProps';
+// import { DataTableColumnTextAlign } from './DataTableColumnTextAlign';
+// import { DataTableColumnTextAlign, GroupedRecord } from './DataTab';
 
 export type DataTableColumn<T = Record<string, unknown>> = {
   /**

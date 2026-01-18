@@ -1,4 +1,4 @@
-import type { DataTableColumn } from '~/package';
+import type { DataTableColumn } from './DataTableColumn';
 
 export type GroupedRecord<T> = {
   type: 'group';
