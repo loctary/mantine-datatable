@@ -12,6 +12,7 @@ export function RowGroupingExample() {
       withTableBorder
       withColumnBorders
       striped
+      pinFirstColumn
       records={companies}
       selectedRecords={selectedRecords}
       onSelectedRecordsChange={setSelectedRecords}
@@ -21,7 +22,6 @@ export function RowGroupingExample() {
           width: 100,
           rowGroup: true,
           hidden: true,
-
         },
         { accessor: 'city', width: 150, rowGroup: true, hidden: true },
         { accessor: 'name', width: 200 },
@@ -40,7 +40,7 @@ export function RowGroupingExample() {
         title: 'Group',
         footer: 'Group column footer',
         render: () => 'Row',
-        rowGroupRender: (v, r) => `group ${v} (${r.length})`,
+        rowGroupRender: (r) => `group ${r.value} (${r.recordCount})`,
       }}
     />
   );

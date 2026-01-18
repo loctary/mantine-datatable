@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import type { DataTableColumn, DataTableGroupColumn } from '../types/DataTableColumn';
-import type { TypedRecord } from '../types/DataTableRowGroupProps';
+import type { DataTableColumn, DataTableGroupColumn, TypedRecord } from '~/package';
 
 interface UseRowGroupProps<T> {
   records?: T[];
@@ -29,8 +28,8 @@ export function useRowGroup<T>({ columns = [], groupColumn, records }: UseRowGro
         level: 0,
       }));
     }
-    return flattenGroupMapWithAggregation(groupedRecords, columns, collapsedGroups);
-  }, [hasGrouping, records, groupedRecords, columns, collapsedGroups]);
+    return flattenGroupMapWithAggregation(groupedRecords, columns, collapsedGroups, groupingColumns);
+  }, [hasGrouping, records, groupedRecords, columns, collapsedGroups, groupingColumns]);
 
   const toggleGroup = useCallback((r?: TypedRecord<T>) => {
     if (r?.type === 'group') {
@@ -109,6 +108,7 @@ function flattenGroupMapWithAggregation<T>(
   groupMap: GroupValue<T> | undefined,
   columns: UseRowGroupProps<T>['columns'],
   collapsedGroups: string[],
+  groupingColumns: UseRowGroupProps<T>['columns'],
   level = 0,
   parentKey = ''
 ): TypedRecord<T>[] | undefined {
@@ -127,6 +127,7 @@ function flattenGroupMapWithAggregation<T>(
     const allRecords = getAllRecords(value);
     const recordCount = countRecords(value);
     const aggregated = createAggregatedRecord(allRecords, columns);
+    const column = groupingColumns[level];
 
     result.push({
       type: 'group',
@@ -136,11 +137,13 @@ function flattenGroupMapWithAggregation<T>(
       recordCount,
       data: aggregated,
       allRecords,
+      column,
     });
 
     const isCollapsed = collapsedGroups.includes(groupKey);
     if (!isCollapsed) {
-      const nested = flattenGroupMapWithAggregation(value, columns, collapsedGroups, level + 1, groupKey) ?? [];
+      const nested =
+        flattenGroupMapWithAggregation(value, columns, collapsedGroups, groupingColumns, level + 1, groupKey) ?? [];
       result.push(...nested);
     }
   });
