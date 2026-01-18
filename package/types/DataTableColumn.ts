@@ -1,5 +1,5 @@
 import type { MantineStyleProp, MantineTheme, PopoverProps } from '@mantine/core';
-import type { DataTableColumnTextAlign } from './DataTableColumnTextAlign';
+import type { DataTableColumnTextAlign, GroupedRecord } from '~/package';
 
 export type DataTableColumn<T = Record<string, unknown>> = {
   /**
@@ -204,5 +204,5 @@ export type DataTableGroupColumn<T = Record<string, unknown>> = Omit<DataTableCo
      * Custom render function for the group header.
      * Receives the group value and records in the group.
      */
-    rowGroupRender?: (groupValue: string, records: T[]) => React.ReactNode;
+    rowGroupRender?: (typedRecord: GroupedRecord<T>) => React.ReactNode;
   };

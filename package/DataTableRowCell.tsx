@@ -2,7 +2,7 @@ import { TableTd, type MantineStyleProp, ActionIcon, Flex } from '@mantine/core'
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 import clsx from 'clsx';
 import { useMediaQueryStringOrFunction } from './hooks';
-import type { DataTableColumn, DataTableGroupColumn, TypedRecord } from './types';
+import type { DataTableColumn, DataTableGroupColumn, GroupedRecord, TypedRecord } from './types';
 import {
   CONTEXT_MENU_CURSOR,
   ELLIPSIS,
@@ -76,7 +76,9 @@ export function DataTableRowCell<T>({
           width,
           minWidth: width,
           maxWidth: width,
-          paddingInlineStart: `calc(var(--mantine-spacing-xs) + var(--mantine-spacing-lg) * ${typedRecord?.level ?? 1})`,
+          ...(!!groupColumn && {
+            paddingInlineStart: `calc(var(--mantine-spacing-xs) + var(--mantine-spacing-lg) * ${typedRecord?.level ?? 1})`,
+          }),
         },
         style,
       ]}
@@ -101,7 +103,7 @@ export function DataTableRowCell<T>({
           ))}
         {!!groupColumn &&
           typedRecord?.type === 'group' &&
-          (groupColumn?.rowGroupRender?.(typedRecord.value, typedRecord.allRecords) ??
+          (groupColumn?.rowGroupRender?.(typedRecord as GroupedRecord<T>) ??
             `${typedRecord.value} (${typedRecord.recordCount})`)}
         {(typedRecord?.type === 'record' || (typedRecord?.type === 'group' && !groupColumn)) &&
           (render
